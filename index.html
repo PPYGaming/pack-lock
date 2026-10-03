@@ -8,8 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px;font-family:'Baloo 2',sans-serif;color:#fff;background:radial-gradient(900px 600px at 15% 10%,#2b1a5c,transparent 60%),radial-gradient(800px 600px at 90% 95%,#0f3a2c,transparent 60%),#05070a}
-.card{max-width:520px;width:100%;padding:26px 22px;border-radius:24px;background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.18);box-shadow:0 30px 80px rgba(0,0,0,.6)}
+body{margin:0;min-height:100vh;padding:18px;font-family:'Baloo 2',sans-serif;color:#fff;background:radial-gradient(900px 600px at 15% 10%,#2b1a5c,transparent 60%),radial-gradient(800px 600px at 90% 95%,#0f3a2c,transparent 60%),#05070a}
+.card{max-width:560px;width:100%;margin:0 auto 16px;padding:26px 22px;border-radius:24px;background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.18);box-shadow:0 30px 80px rgba(0,0,0,.6)}
 h1{margin:0 0 4px;font-size:1.6rem;background:linear-gradient(90deg,#fff,#FFD23F);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .sub{margin:0 0 18px;color:rgba(255,255,255,.7);font-size:.9rem}
 label{display:block;font-weight:700;font-size:.85rem;margin:12px 0 5px;color:#FFD23F}
@@ -26,13 +26,40 @@ button{font:inherit;font-weight:800;cursor:pointer;border:0;border-radius:14px;p
 #test{background:rgba(255,255,255,.14);color:#fff}
 #err{display:none;margin-top:12px;color:#ff9b9b;font-size:.88rem}
 .hint{font-size:.74rem;color:rgba(255,255,255,.5);margin-top:4px}
+
+h2{margin:0 0 4px;font-size:1.25rem;color:#fff}
+.tokrow{display:flex;gap:8px;margin-top:8px}
+.tokrow input{flex:1;min-width:0}
+.btn{padding:11px 14px;font-size:.9rem}
+.b-main{background:linear-gradient(180deg,#FFD23F,#FF8A00);color:#1a1000;box-shadow:0 4px 0 #a85a00}
+.b-main:active{transform:translateY(2px);box-shadow:0 2px 0 #a85a00}
+.b-ghost{background:rgba(255,255,255,.14);color:#fff}
+.b-green{background:#22E3A6;color:#06241a}
+.b-red{background:#ff5d6c;color:#2a0006}
+details{margin-top:10px;font-size:.82rem;color:rgba(255,255,255,.75);background:rgba(0,0,0,.25);border-radius:12px;padding:10px 12px}
+summary{cursor:pointer;font-weight:700;color:#FFD23F}
+details ol{margin:8px 0 0;padding-left:18px;line-height:1.5}
+.pill{display:inline-block;font-size:.7rem;font-weight:800;padding:3px 10px;border-radius:99px;margin-left:6px;vertical-align:middle}
+.p-on{background:#22E3A633;color:#22E3A6;border:1px solid #22E3A688}
+.p-off{background:#ffffff22;color:#ddd;border:1px solid #ffffff44}
+.item{margin-top:10px;padding:12px;border-radius:16px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.12)}
+.item .t{font-weight:800;font-size:1.02rem}
+.item .m{font-size:.74rem;color:rgba(255,255,255,.55);word-break:break-all;margin-top:2px}
+.item .acts{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.item .acts button{flex:1;min-width:84px;padding:10px 8px;font-size:.85rem}
+.edit{margin-top:6px}
+.confirm{margin-top:10px;padding:10px;border-radius:12px;background:#ff5d6c22;border:1px solid #ff5d6c88;font-size:.86rem}
+.confirm .row{margin-top:8px}
+.msg{margin-top:10px;font-size:.85rem;color:#9bffd9;display:none}
+.msg.bad{color:#ff9b9b}
+.empty{margin-top:12px;color:rgba(255,255,255,.55);font-size:.9rem;text-align:center;padding:14px}
 </style>
 </head>
 <body>
 <main class="card">
   <h1>🔐 Pack Link Lock</h1>
-  <p class="sub">Make a lock link: viewers tap unlock, a CurseForge pack downloads in the background, and they are sent to your site.</p>
-  <label for="dl">1. CurseForge direct download link</label>
+  <p class="sub">Make a lock link: viewers tap unlock, a CurseForge pack comes in the background, and they are sent to your site.</p>
+  <label for="dl">1. CurseForge direct file link</label>
   <input id="dl" type="url" inputmode="url" placeholder="https://www.curseforge.com/api/v1/mods/.../files/.../download" autocomplete="off">
   <div class="hint">Must be a curseforge.com or forgecdn.net link.</div>
   <label for="to">2. Website link to lock</label>
@@ -40,35 +67,165 @@ button{font:inherit;font-weight:800;cursor:pointer;border:0;border-radius:14px;p
   <label for="nm">3. Site name shown to viewers (optional)</label>
   <input id="nm" type="text" maxlength="40" placeholder="Defaults to the website's domain" autocomplete="off">
   <button id="gen" type="button">⚡ Generate lock link</button>
+  <div class="hint" id="genhint"></div>
   <div id="err"></div>
   <div id="out">
     <textarea id="res" readonly></textarea>
     <div class="row"><button id="copy" type="button">📋 Copy</button><button id="test" type="button">▶ Test</button></div>
   </div>
 </main>
+
+<section class="card" id="mylinks">
+  <h2>📌 My Links <span class="pill p-off" id="mode">read-only</span></h2>
+  <p class="sub" id="modetxt">Paste your GitHub token below to add, edit and delete links.</p>
+  <div id="list"></div>
+  <div class="msg" id="msg"></div>
+</section>
+
+<section class="card">
+  <h2>🔑 GitHub token</h2>
+  <p class="sub">Needed once. Saved only in this browser, never in the repo.</p>
+  <div class="tokrow"><input id="tok" type="password" placeholder="github_pat_..." autocomplete="off"><button class="btn b-green" id="tsave" type="button">Save</button><button class="btn b-ghost" id="tclear" type="button">Remove</button></div>
+  <details><summary>How to create the token</summary>
+    <ol>
+      <li>GitHub > Settings > Developer settings > Personal access tokens > Fine-grained tokens > Generate new token.</li>
+      <li>Repository access: Only select repositories > <b>PPYGaming/pack-lock</b>.</li>
+      <li>Permissions > Repository permissions > <b>Contents: Read and write</b>.</li>
+      <li>Generate, copy it, paste above and tap Save.</li>
+    </ol>
+  </details>
+</section>
 <script>
 (function(){
   var $ = function(i){ return document.getElementById(i); };
   var HOSTS = ["curseforge.com","forgecdn.net"];
+  var REPO = "PPYGaming/pack-lock", FILE = "links.json", KEY = "pl_token";
+  var links = [], editing = null, deleting = null;
   function parse(u){ try{ var x = new URL(u.trim()); return (x.protocol==="https:"||x.protocol==="http:") ? x : null; }catch(e){ return null; } }
   function ok(x){ return HOSTS.some(function(h){ return x.hostname===h || x.hostname.slice(-(h.length+1))==="."+h; }); }
   function err(m){ var e=$("err"); e.textContent=m; e.style.display=m?"block":"none"; }
+  function tok(){ try{ return localStorage.getItem(KEY) || ""; }catch(e){ return ""; } }
+  function base(){ return location.href.replace(/[?#].*$/,"").replace(/[^\/]*$/,"") + "lock.html"; }
+  function esc(s){ return String(s).replace(/[&<>"']/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  function say(m,bad){ var e=$("msg"); e.textContent=m; e.className="msg"+(bad?" bad":""); e.style.display=m?"block":"none"; }
+  function newId(){ var s="", c="abcdefghjkmnpqrstuvwxyz23456789"; for(var i=0;i<6;i++){ s+=c[Math.floor(Math.random()*c.length)]; } return s; }
+  function b64(s){ var b=new TextEncoder().encode(s), r=""; for(var i=0;i<b.length;i++){ r+=String.fromCharCode(b[i]); } return btoa(r); }
+  function unb64(s){ var r=atob(s.replace(/\s/g,"")), b=new Uint8Array(r.length); for(var i=0;i<r.length;i++){ b[i]=r.charCodeAt(i); } return new TextDecoder().decode(b); }
+  function api(method, body){
+    return fetch("https://api.github.com/repos/"+REPO+"/contents/"+FILE+(method==="GET"?"?ref=main&t="+Date.now():""), {
+      method: method,
+      headers: {"Authorization":"Bearer "+tok(),"Accept":"application/vnd.github+json"},
+      body: body ? JSON.stringify(body) : undefined, cache:"no-store"
+    });
+  }
+  // read latest from GitHub, apply fn, write back
+  function mutate(fn, msg){
+    return api("GET").then(function(r){
+      if(r.status===404){ return {sha:null, data:{links:[]}}; }
+      if(r.status===401||r.status===403){ throw new Error("Token rejected. Check it has Contents read and write for pack-lock."); }
+      if(!r.ok){ throw new Error("GitHub error "+r.status); }
+      return r.json().then(function(j){ var d; try{ d=JSON.parse(unb64(j.content)); }catch(e){ d={links:[]}; } if(!d.links){ d.links=[]; } return {sha:j.sha, data:d}; });
+    }).then(function(cur){
+      var out = fn(cur.data);
+      var body = {message:msg, content:b64(JSON.stringify(out,null,2)+"\n"), branch:"main"};
+      if(cur.sha){ body.sha = cur.sha; }
+      return api("PUT", body).then(function(r){
+        if(!r.ok){ throw new Error(r.status===409||r.status===422 ? "Changed elsewhere, try again." : "Save failed ("+r.status+")"); }
+        links = out.links; render();
+      });
+    });
+  }
+  function load(){
+    fetch(tok() ? "https://api.github.com/repos/"+REPO+"/contents/"+FILE+"?ref=main&t="+Date.now() : "links.json?t="+Date.now(), tok()?{headers:{"Authorization":"Bearer "+tok(),"Accept":"application/vnd.github+json"},cache:"no-store"}:{cache:"no-store"})
+    .then(function(r){ if(r.status===404){ return {links:[]}; } if(!r.ok){ throw new Error("x"); } return r.json().then(function(j){ return j.content ? JSON.parse(unb64(j.content)) : j; }); })
+    .then(function(d){ links = (d&&d.links)||[]; render(); })
+    .catch(function(){ say("Could not load your links.", true); });
+  }
+  function render(){
+    var on = !!tok();
+    $("mode").textContent = on ? "editing on" : "read-only";
+    $("mode").className = "pill " + (on ? "p-on" : "p-off");
+    $("modetxt").textContent = on ? "Tap Copy to share a link. Edit or Delete changes it for everyone who has it." : "Read-only. Pasting a token below enables editing.";
+    $("genhint").textContent = on ? "Saved to My Links. Short link, can be edited or deleted later." : "No token set: makes a fixed link that cannot be edited or deleted later.";
+    var h = "";
+    if(!links.length){ h = '<div class="empty">No saved links yet.</div>'; }
+    links.slice().reverse().forEach(function(e){
+      var id = esc(e.id);
+      h += '<div class="item" data-id="'+id+'"><div class="t">'+esc(e.label||"Untitled")+'</div><div class="m">'+esc(e.created||"")+' \u2022 '+esc(e.site)+'</div>';
+      if(editing===e.id){
+        h += '<div class="edit"><label>Name</label><input data-f="label" value="'+esc(e.label||"")+'" maxlength="40"><label>Website link</label><input data-f="site" value="'+esc(e.site)+'"><label>CurseForge file link</label><input data-f="pack" value="'+esc(e.pack)+'"></div>'
+          + '<div class="acts"><button class="btn b-green" data-a="save">Save changes</button><button class="btn b-ghost" data-a="cancel">Cancel</button></div>';
+      } else if(deleting===e.id){
+        h += '<div class="confirm">Delete this link? Anyone opening it will see "Link not available".<div class="row" style="display:flex;gap:8px"><button class="btn b-red" data-a="del2" style="flex:1">Yes, delete</button><button class="btn b-ghost" data-a="cancel" style="flex:1">Keep</button></div></div>';
+      } else {
+        h += '<div class="acts"><button class="btn b-green" data-a="copy">📋 Copy link</button>'
+          + (on ? '<button class="btn b-ghost" data-a="edit">\u270f\ufe0f Edit</button><button class="btn b-red" data-a="del">🗑 Delete</button>' : '')
+          + '</div>';
+      }
+      h += '</div>';
+    });
+    $("list").innerHTML = h;
+  }
+  $("list").addEventListener("click", function(ev){
+    var b = ev.target.closest("button"); if(!b){ return; }
+    var item = b.closest(".item"), id = item.getAttribute("data-id"), a = b.getAttribute("data-a");
+    say("");
+    if(a==="copy"){
+      var u = base()+"?id="+id;
+      (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).catch(function(){ var t=document.createElement("textarea"); t.value=u; document.body.appendChild(t); t.select(); document.execCommand("copy"); t.remove(); });
+      b.textContent="\u2705 Copied"; setTimeout(function(){ b.textContent="📋 Copy link"; },1500);
+    } else if(a==="edit"){ editing=id; deleting=null; render(); }
+    else if(a==="del"){ deleting=id; editing=null; render(); }
+    else if(a==="cancel"){ editing=null; deleting=null; render(); }
+    else if(a==="del2"){
+      b.disabled=true; b.textContent="Deleting...";
+      mutate(function(d){ d.links=d.links.filter(function(x){ return x.id!==id; }); return d; }, "Delete link "+id)
+        .then(function(){ deleting=null; render(); say("Deleted. It stops working for viewers within a minute or two."); })
+        .catch(function(e){ deleting=null; render(); say(e.message,true); });
+    } else if(a==="save"){
+      var v = {}; item.querySelectorAll("input").forEach(function(i){ v[i.getAttribute("data-f")] = i.value.trim(); });
+      var d = parse(v.pack||""), t = parse(v.site||"");
+      if(!d || !ok(d)){ return say("File link must be a valid curseforge.com / forgecdn.net link.", true); }
+      if(!t){ return say("Website link must start with http:// or https://", true); }
+      b.disabled=true; b.textContent="Saving...";
+      mutate(function(x){ x.links.forEach(function(e){ if(e.id===id){ e.label=v.label.slice(0,40)||t.hostname.replace(/^www\./,""); e.site=t.href; e.pack=d.href; } }); return x; }, "Edit link "+id)
+        .then(function(){ editing=null; render(); say("Saved. Viewers get the new target within a minute or two."); })
+        .catch(function(e){ render(); say(e.message,true); });
+    }
+  });
   $("gen").addEventListener("click", function(){
-    err(""); $("out").style.display="none";
-    var d = parse($("dl").value), t = parse($("to").value);
-    if(!d || !ok(d)){ return err("Download link must be a valid curseforge.com / forgecdn.net link."); }
+    err(""); say(""); $("out").style.display="none";
+    var d = parse($("dl").value), t = parse($("to").value), n = $("nm").value.trim().slice(0,40);
+    if(!d || !ok(d)){ return err("File link must be a valid curseforge.com / forgecdn.net link."); }
     if(!t){ return err("Website link must start with http:// or https://"); }
-    var base = location.href.replace(/[?#].*$/,"").replace(/[^\/]*$/,"") + "lock.html";
-    $("res").value = base + "?dl=" + encodeURIComponent(d.href) + "&to=" + encodeURIComponent(t.href) + ($("nm").value.trim() ? "&n=" + encodeURIComponent($("nm").value.trim().slice(0,40)) : "");
-    $("out").style.display="block";
+    if(!tok()){
+      $("res").value = base() + "?dl=" + encodeURIComponent(d.href) + "&to=" + encodeURIComponent(t.href) + (n ? "&n=" + encodeURIComponent(n) : "");
+      $("out").style.display="block"; return;
+    }
+    var id = newId(), btn=$("gen"); btn.disabled=true; btn.textContent="Saving...";
+    var entry = {id:id, created:new Date().toISOString().slice(0,10), label:n||t.hostname.replace(/^www\./,""), site:t.href, pack:d.href};
+    mutate(function(x){ x.links.push(entry); return x; }, "Add link "+id).then(function(){
+      $("res").value = base()+"?id="+id; $("out").style.display="block";
+      $("dl").value=""; $("to").value=""; $("nm").value="";
+    }).catch(function(e){ err(e.message); }).then(function(){ btn.disabled=false; btn.textContent="\u26a1 Generate lock link"; });
   });
   $("copy").addEventListener("click", function(){
     var r=$("res"); r.select();
     (navigator.clipboard ? navigator.clipboard.writeText(r.value) : Promise.reject()).catch(function(){ document.execCommand("copy"); });
-    $("copy").textContent="✅ Copied";
+    $("copy").textContent="\u2705 Copied";
     setTimeout(function(){ $("copy").textContent="📋 Copy"; },1500);
   });
   $("test").addEventListener("click", function(){ window.open($("res").value,"_blank"); });
+  $("tsave").addEventListener("click", function(){
+    var v=$("tok").value.trim(); if(!v){ return; }
+    try{ localStorage.setItem(KEY,v); }catch(e){}
+    $("tok").value=""; say("Token saved in this browser."); load();
+  });
+  $("tclear").addEventListener("click", function(){
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    editing=null; deleting=null; say("Token removed."); load();
+  });
+  load();
 })();
 </script>
 </body>

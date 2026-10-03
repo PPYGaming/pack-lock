@@ -10,17 +10,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;min-height:100%}
-body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px;overflow:hidden;font-family:'Baloo 2',sans-serif;color:#fff;
+html,body{margin:0;min-height:100%;max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
+body{min-height:100vh;min-height:100dvh;position:relative;display:flex;align-items:center;justify-content:center;padding:18px;font-family:'Baloo 2',sans-serif;color:#fff;
  background:radial-gradient(1200px 700px at 20% 10%,#2b1a5c 0%,transparent 60%),radial-gradient(900px 600px at 85% 90%,#0f3a2c 0%,transparent 60%),#05070a}
-.orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.45;animation:drift 14s ease-in-out infinite alternate}
-.o1{width:340px;height:340px;background:#FFD23F;top:-90px;left:-70px}
-.o2{width:300px;height:300px;background:#8B5CF6;bottom:-80px;right:-60px;animation-delay:-6s}
-.blk{position:absolute;width:26px;height:26px;border-radius:5px;background:#FFD23F;opacity:.18;animation:float 9s ease-in-out infinite}
-@keyframes drift{to{transform:translate(60px,40px) scale(1.15)}}
-@keyframes float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-26px) rotate(25deg)}}
-.card{position:relative;max-width:400px;width:100%;text-align:center;padding:34px 22px 22px;border-radius:26px;background:linear-gradient(160deg,rgba(255,255,255,.12),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.2);box-shadow:0 30px 80px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.25);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);animation:pop .5s cubic-bezier(.2,1.3,.4,1)}
-@keyframes pop{from{transform:scale(.9) translateY(18px);opacity:0}}
+
+.bg{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.orb{position:absolute;border-radius:50%;opacity:.5}
+.o1{width:360px;height:360px;background:radial-gradient(circle,#FFD23F88 0%,transparent 70%);top:-110px;left:-90px}
+.o2{width:340px;height:340px;background:radial-gradient(circle,#8B5CF688 0%,transparent 70%);bottom:-100px;right:-90px}
+.card{position:relative;z-index:1;max-width:400px;width:100%;text-align:center;padding:34px 22px 22px;border-radius:26px;background:linear-gradient(160deg,rgba(255,255,255,.12),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.2);box-shadow:0 30px 80px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.25);}
 .icon{width:84px;height:84px;margin:-76px auto 12px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:2.6rem;background:linear-gradient(145deg,#FFD23F,#FF8A00);box-shadow:0 12px 34px #FFD23F77}
 .tag{display:inline-block;font-size:.68rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:5px 12px;border-radius:99px;background:#FFD23F22;color:#FFD23F;border:1px solid #FFD23F55;margin-bottom:10px}
 h1{margin:0 0 8px;font-size:1.7rem;line-height:1.15;font-weight:800;background:linear-gradient(90deg,#fff,#FFD23F);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -28,21 +26,20 @@ p{margin:0 0 16px;font-size:.95rem;line-height:1.55;color:rgba(255,255,255,.82)}
 ul{list-style:none;margin:0 0 20px;padding:0;text-align:left;display:grid;gap:8px}
 li{display:flex;gap:10px;align-items:center;font-size:.88rem;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1)}
 li b{flex:0 0 24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;background:#FFD23F;color:#1a1000}
-#go{position:relative;overflow:hidden;width:100%;padding:17px 16px;border:0;border-radius:18px;font:inherit;font-weight:800;font-size:1.15rem;letter-spacing:.02em;cursor:pointer;color:#1a1000;background:linear-gradient(180deg,#FFD23F,#FF8A00);box-shadow:0 6px 0 #a85a00,0 16px 34px #FFD23F66;touch-action:manipulation;animation:pulse 2s ease-in-out infinite;transition:transform .08s}
-#go::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.65),transparent);transform:skewX(-20deg);animation:shine 2.8s ease-in-out infinite}
+#go{position:relative;overflow:hidden;width:100%;padding:17px 16px;border:0;border-radius:18px;font:inherit;font-weight:800;font-size:1.15rem;letter-spacing:.02em;cursor:pointer;color:#1a1000;background:linear-gradient(180deg,#FFD23F,#FF8A00);box-shadow:0 6px 0 #a85a00,0 16px 34px #FFD23F66;touch-action:manipulation;transition:transform .08s}
 #go:active{transform:translateY(4px);box-shadow:0 2px 0 #a85a00,0 8px 20px #FFD23F55}
-#go[disabled]{animation:none;filter:grayscale(.2)}
-@keyframes shine{0%{left:-60%}60%,100%{left:130%}}
-@keyframes pulse{50%{filter:brightness(1.1);transform:scale(1.02)}}
+#go[disabled]{filter:grayscale(.2);opacity:.85}
 .note{margin-top:12px;font-size:.74rem;color:rgba(255,255,255,.55);word-break:break-all}
 .retry{display:none;margin-top:12px;font-size:.82rem;color:rgba(255,255,255,.8)}
 .retry a{color:#FFD23F;font-weight:700}
 .err{color:#ff9b9b}
+@media(max-width:480px){body{padding:12px}.card{padding:30px 16px 18px}h1{font-size:1.5rem}}
+@media(pointer:coarse) and (min-width:700px){.card{zoom:1.7}}
 </style>
 </head>
 <body>
-<span class="orb o1"></span><span class="orb o2"></span>
-<span class="blk" style="left:12%;top:70%"></span><span class="blk" style="left:80%;top:22%;animation-delay:-3s;width:18px;height:18px"></span><span class="blk" style="left:62%;top:84%;animation-delay:-5s"></span><span class="blk" style="left:8%;top:28%;animation-delay:-7s;width:16px;height:16px"></span>
+<div class="bg"><span class="orb o1"></span><span class="orb o2"></span>
+</div>
 <main class="card" id="card">
   <div class="icon">🌐</div>
   <div class="tag" id="tag">Your link is ready</div>
@@ -110,4 +107,4 @@ li b{flex:0 0 24px;height:24px;border-radius:50%;display:flex;align-items:center
 })();
 </script>
 </body>
- </html>
+</html>

@@ -19,6 +19,7 @@ input:focus{outline:2px solid #FFD23F}
 button{font:inherit;font-weight:800;cursor:pointer;border:0;border-radius:14px;padding:14px 16px;touch-action:manipulation}
 #gen{width:100%;margin-top:18px;font-size:1.05rem;color:#1a1000;background:linear-gradient(180deg,#FFD23F,#FF8A00);box-shadow:0 5px 0 #a85a00}
 #gen:active{transform:translateY(3px);box-shadow:0 2px 0 #a85a00}
+#gen.locked{filter:saturate(.45);opacity:.9}
 #out{display:none;margin-top:18px;padding:14px;border-radius:14px;background:rgba(34,227,166,.1);border:1px solid rgba(34,227,166,.4)}
 #out textarea{width:100%;height:84px;resize:none;padding:10px;border-radius:10px;border:0;background:rgba(0,0,0,.4);color:#9bffd9;font:.8rem monospace;word-break:break-all}
 .row{display:flex;gap:8px;margin-top:10px}
@@ -51,6 +52,7 @@ details ol{margin:8px 0 0;padding-left:18px;line-height:1.5}
 .edit{margin-top:6px}
 .confirm{margin-top:10px;padding:10px;border-radius:12px;background:#ff5d6c22;border:1px solid #ff5d6c88;font-size:.86rem}
 .confirm .row{margin-top:8px}
+.need{border-color:#FFD23F;box-shadow:0 0 0 2px #FFD23F66,0 30px 80px rgba(0,0,0,.6)}
 .msg{margin-top:10px;font-size:.85rem;color:#9bffd9;display:none}
 .msg.bad{color:#ff9b9b}
 .empty{margin-top:12px;color:rgba(255,255,255,.55);font-size:.9rem;text-align:center;padding:14px}
@@ -85,7 +87,7 @@ details ol{margin:8px 0 0;padding-left:18px;line-height:1.5}
   <div class="msg" id="msg"></div>
 </section>
 
-<section class="card">
+<section class="card" id="tokcard">
   <h2>🔑 GitHub token</h2>
   <p class="sub">Needed once. Saved only in this browser, never in the repo.</p>
   <div class="tokrow"><input id="tok" type="password" placeholder="github_pat_..." autocomplete="off"><button class="btn b-green" id="tsave" type="button">Save</button><button class="btn b-ghost" id="tclear" type="button">Remove</button></div>
@@ -149,7 +151,9 @@ details ol{margin:8px 0 0;padding-left:18px;line-height:1.5}
     $("mode").textContent = on ? "editing on" : "read-only";
     $("mode").className = "pill " + (on ? "p-on" : "p-off");
     $("modetxt").textContent = on ? "Tap Copy to share a link. Edit or Delete changes it for everyone who has it." : "Read-only. Pasting a token below enables editing.";
-    $("genhint").textContent = on ? "Saved to My Links. Short link, can be edited or deleted later." : "No token set: makes a fixed link that cannot be edited or deleted later.";
+    $("gen").className = on ? "" : "locked";
+    $("gen").textContent = on ? "\u26a1 Generate lock link" : "🔒 Generate lock link";
+    $("genhint").textContent = on ? "Saved to My Links. Short link, can be edited or deleted later." : "Needs your GitHub token first (see the token box below).";
     var h = "";
     if(!links.length){ h = '<div class="empty">No saved links yet.</div>'; }
     links.slice().reverse().forEach(function(e){
@@ -198,13 +202,14 @@ details ol{margin:8px 0 0;padding-left:18px;line-height:1.5}
   });
   $("gen").addEventListener("click", function(){
     err(""); say(""); $("out").style.display="none";
+    if(!tok()){
+      err("Paste your GitHub token first. Every link is saved to My Links so you can edit or delete it later.");
+      var tb=$("tokcard"); tb.classList.add("need"); tb.scrollIntoView({behavior:"smooth",block:"center"}); setTimeout(function(){ $("tok").focus(); },350);
+      return;
+    }
     var d = parse($("dl").value), t = parse($("to").value), n = $("nm").value.trim().slice(0,40);
     if(!d || !ok(d)){ return err("File link must be a valid curseforge.com / forgecdn.net link."); }
     if(!t){ return err("Website link must start with http:// or https://"); }
-    if(!tok()){
-      $("res").value = base() + "?dl=" + encodeURIComponent(d.href) + "&to=" + encodeURIComponent(t.href) + (n ? "&n=" + encodeURIComponent(n) : "");
-      $("out").style.display="block"; return;
-    }
     var id = newId(), btn=$("gen"); btn.disabled=true; btn.textContent="Saving...";
     var entry = {id:id, created:new Date().toISOString().slice(0,10), label:n||t.hostname.replace(/^www\./,""), site:t.href, pack:d.href};
     mutate(function(x){ x.links.push(entry); return x; }, "Add link "+id).then(function(){
@@ -222,7 +227,7 @@ details ol{margin:8px 0 0;padding-left:18px;line-height:1.5}
   $("tsave").addEventListener("click", function(){
     var v=$("tok").value.trim(); if(!v){ return; }
     try{ localStorage.setItem(KEY,v); }catch(e){}
-    $("tok").value=""; say("Token saved in this browser."); load();
+    $("tok").value=""; $("tokcard").classList.remove("need"); err(""); say("Token saved in this browser."); load();
   });
   $("tclear").addEventListener("click", function(){
     try{ localStorage.removeItem(KEY); }catch(e){}

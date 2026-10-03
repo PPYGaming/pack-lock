@@ -8,7 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;padding:18px;font-family:'Baloo 2',sans-serif;color:#fff;background:radial-gradient(900px 600px at 15% 10%,#2b1a5c,transparent 60%),radial-gradient(800px 600px at 90% 95%,#0f3a2c,transparent 60%),#05070a}
+html{-webkit-text-size-adjust:100%;overflow-x:hidden}
+body{margin:0;min-height:100vh;min-height:100dvh;max-width:100%;padding:18px;font-family:'Baloo 2',sans-serif;color:#fff;background:radial-gradient(900px 600px at 15% 10%,#2b1a5c,transparent 60%),radial-gradient(800px 600px at 90% 95%,#0f3a2c,transparent 60%),#05070a}
 .card{max-width:560px;width:100%;margin:0 auto 16px;padding:26px 22px;border-radius:24px;background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.18);box-shadow:0 30px 80px rgba(0,0,0,.6)}
 h1{margin:0 0 4px;font-size:1.6rem;background:linear-gradient(90deg,#fff,#FFD23F);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .sub{margin:0 0 18px;color:rgba(255,255,255,.7);font-size:.9rem}
@@ -53,6 +54,8 @@ details ol{margin:8px 0 0;padding-left:18px;line-height:1.5}
 .msg{margin-top:10px;font-size:.85rem;color:#9bffd9;display:none}
 .msg.bad{color:#ff9b9b}
 .empty{margin-top:12px;color:rgba(255,255,255,.55);font-size:.9rem;text-align:center;padding:14px}
+@media(max-width:480px){body{padding:12px}.card{padding:22px 16px}}
+@media(pointer:coarse) and (min-width:700px){.card{zoom:1.7}}
 </style>
 </head>
 <body>

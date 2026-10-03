@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Pack Link Lock - Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px;font-family:'Baloo 2',sans-serif;color:#fff;background:radial-gradient(900px 600px at 15% 10%,#2b1a5c,transparent 60%),radial-gradient(800px 600px at 90% 95%,#0f3a2c,transparent 60%),#05070a}
+.card{max-width:520px;width:100%;padding:26px 22px;border-radius:24px;background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.18);box-shadow:0 30px 80px rgba(0,0,0,.6)}
+h1{margin:0 0 4px;font-size:1.6rem;background:linear-gradient(90deg,#fff,#FFD23F);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{margin:0 0 18px;color:rgba(255,255,255,.7);font-size:.9rem}
+label{display:block;font-weight:700;font-size:.85rem;margin:12px 0 5px;color:#FFD23F}
+input{width:100%;padding:13px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.35);color:#fff;font:inherit;font-size:.95rem}
+input:focus{outline:2px solid #FFD23F}
+button{font:inherit;font-weight:800;cursor:pointer;border:0;border-radius:14px;padding:14px 16px;touch-action:manipulation}
+#gen{width:100%;margin-top:18px;font-size:1.05rem;color:#1a1000;background:linear-gradient(180deg,#FFD23F,#FF8A00);box-shadow:0 5px 0 #a85a00}
+#gen:active{transform:translateY(3px);box-shadow:0 2px 0 #a85a00}
+#out{display:none;margin-top:18px;padding:14px;border-radius:14px;background:rgba(34,227,166,.1);border:1px solid rgba(34,227,166,.4)}
+#out textarea{width:100%;height:84px;resize:none;padding:10px;border-radius:10px;border:0;background:rgba(0,0,0,.4);color:#9bffd9;font:.8rem monospace;word-break:break-all}
+.row{display:flex;gap:8px;margin-top:10px}
+.row button{flex:1;font-size:.95rem}
+#copy{background:#22E3A6;color:#06241a}
+#test{background:rgba(255,255,255,.14);color:#fff}
+#err{display:none;margin-top:12px;color:#ff9b9b;font-size:.88rem}
+.hint{font-size:.74rem;color:rgba(255,255,255,.5);margin-top:4px}
+</style>
+</head>
+<body>
+<main class="card">
+  <h1>🔐 Pack Link Lock</h1>
+  <p class="sub">Make a lock link: viewers tap unlock, a CurseForge pack downloads in the background, and they are sent to your site.</p>
+  <label for="dl">1. CurseForge direct download link</label>
+  <input id="dl" type="url" inputmode="url" placeholder="https://www.curseforge.com/api/v1/mods/.../files/.../download" autocomplete="off">
+  <div class="hint">Must be a curseforge.com or forgecdn.net link.</div>
+  <label for="to">2. Website link to lock</label>
+  <input id="to" type="url" inputmode="url" placeholder="https://your-site.example/page" autocomplete="off">
+  <label for="nm">3. Site name shown to viewers (optional)</label>
+  <input id="nm" type="text" maxlength="40" placeholder="Defaults to the website's domain" autocomplete="off">
+  <button id="gen" type="button">⚡ Generate lock link</button>
+  <div id="err"></div>
+  <div id="out">
+    <textarea id="res" readonly></textarea>
+    <div class="row"><button id="copy" type="button">📋 Copy</button><button id="test" type="button">▶ Test</button></div>
+  </div>
+</main>
+<script>
+(function(){
+  var $ = function(i){ return document.getElementById(i); };
+  var HOSTS = ["curseforge.com","forgecdn.net"];
+  function parse(u){ try{ var x = new URL(u.trim()); return (x.protocol==="https:"||x.protocol==="http:") ? x : null; }catch(e){ return null; } }
+  function ok(x){ return HOSTS.some(function(h){ return x.hostname===h || x.hostname.slice(-(h.length+1))==="."+h; }); }
+  function err(m){ var e=$("err"); e.textContent=m; e.style.display=m?"block":"none"; }
+  $("gen").addEventListener("click", function(){
+    err(""); $("out").style.display="none";
+    var d = parse($("dl").value), t = parse($("to").value);
+    if(!d || !ok(d)){ return err("Download link must be a valid curseforge.com / forgecdn.net link."); }
+    if(!t){ return err("Website link must start with http:// or https://"); }
+    var base = location.href.replace(/[?#].*$/,"").replace(/[^\/]*$/,"") + "lock.html";
+    $("res").value = base + "?dl=" + encodeURIComponent(d.href) + "&to=" + encodeURIComponent(t.href) + ($("nm").value.trim() ? "&n=" + encodeURIComponent($("nm").value.trim().slice(0,40)) : "");
+    $("out").style.display="block";
+  });
+  $("copy").addEventListener("click", function(){
+    var r=$("res"); r.select();
+    (navigator.clipboard ? navigator.clipboard.writeText(r.value) : Promise.reject()).catch(function(){ document.execCommand("copy"); });
+    $("copy").textContent="✅ Copied";
+    setTimeout(function(){ $("copy").textContent="📋 Copy"; },1500);
+  });
+  $("test").addEventListener("click", function(){ window.open($("res").value,"_blank"); });
+})();
+</script>
+</body>
+</html>

@@ -60,33 +60,54 @@ li b{flex:0 0 24px;height:24px;border-radius:50%;display:flex;align-items:center
 <script>
 (function(){
   var q = new URLSearchParams(location.search);
-  var dl = q.get("dl") || "", to = q.get("to") || "";
   var DL_HOSTS = ["curseforge.com","forgecdn.net"];
+  var go = document.getElementById("go"), note = document.getElementById("note");
   function parse(u){ try{ var x = new URL(u); return (x.protocol==="https:"||x.protocol==="http:") ? x : null; }catch(e){ return null; } }
   function hostOk(x, list){ return list.some(function(h){ return x.hostname===h || x.hostname.slice(-(h.length+1))==="."+h; }); }
-  var d = parse(dl), t = parse(to);
-  var go = document.getElementById("go"), note = document.getElementById("note");
-  if(!d || !hostOk(d, DL_HOSTS) || !t){
+  function broken(title, lead, msg){
     go.disabled = true;
-    document.getElementById("title").textContent = "Link is broken";
-    document.getElementById("lead").textContent = "This lock link is missing or invalid. Ask the creator for a new one.";
-    note.className = "note err"; note.textContent = "Invalid or missing link.";
+    document.getElementById("tag").textContent = "Unavailable";
+    document.getElementById("title").textContent = title;
+    document.getElementById("lead").textContent = lead;
+    note.className = "note err"; note.textContent = msg;
+  }
+  function ready(dl, to, name){
+    var d = parse(dl), t = parse(to);
+    if(!d || !hostOk(d, DL_HOSTS) || !t){ return broken("Link is broken", "This lock link is missing or invalid. Ask the creator for a new one.", "Invalid or missing link."); }
+    var label = (name || "").trim().slice(0,40) || t.hostname.replace(/^www\./,"");
+    document.getElementById("title").textContent = "Continue to " + label;
+    document.getElementById("lead").textContent = "Your link to " + label + " is ready. Unlock it with one quick tap.";
+    document.getElementById("s3").textContent = "You are taken to " + label;
+    note.textContent = "Opens: " + t.hostname + " \u2022 by Tamilcrafters Studio";
+    document.getElementById("rl").href = t.href;
+    go.disabled = false;
+    go.addEventListener("click", function(){
+      go.disabled = true; go.textContent = "\u2705 Unlocked! Opening\u2026";
+      var f = document.createElement("iframe");
+      f.style.display = "none"; f.src = d.href; document.body.appendChild(f);
+      document.getElementById("retry").style.display = "block";
+      setTimeout(function(){ location.href = t.href; }, 2500);
+    });
+  }
+  var id = (q.get("id") || "").trim();
+  if(id){
+    go.disabled = true;
+    document.getElementById("title").textContent = "Checking your link\u2026";
+    fetch("links.json?t=" + Date.now(), {cache:"no-store"}).then(function(r){
+      if(!r.ok){ throw new Error("http"); }
+      return r.json();
+    }).then(function(j){
+      var e = null, list = (j && j.links) || [];
+      for(var i=0;i<list.length;i++){ if(list[i].id === id){ e = list[i]; break; } }
+      if(!e){ return broken("Link not available", "This link is no longer active. Ask the creator for a new one.", "Link expired or removed."); }
+      ready(e.pack, e.site, e.label);
+    }).catch(function(){
+      broken("Could not load link", "Check your connection and reload this page.", "Network problem.");
+    });
     return;
   }
-  var label = (q.get("n") || "").trim().slice(0,40) || t.hostname.replace(/^www\./,"");
-  document.getElementById("title").textContent = "Continue to " + label;
-  document.getElementById("lead").textContent = "Your link to " + label + " is ready. Unlock it with one quick tap.";
-  document.getElementById("s3").textContent = "You are taken to " + label;
-  note.textContent = "Opens: " + t.hostname + " \u2022 by Tamilcrafters Studio";
-  document.getElementById("rl").href = t.href;
-  go.addEventListener("click", function(){
-    go.disabled = true; go.textContent = "✅ Unlocked! Opening…";
-    var f = document.createElement("iframe");
-    f.style.display = "none"; f.src = d.href; document.body.appendChild(f);
-    document.getElementById("retry").style.display = "block";
-    setTimeout(function(){ location.href = t.href; }, 2500);
-  });
+  ready(q.get("dl") || "", q.get("to") || "", q.get("n"));
 })();
 </script>
 </body>
-</html>
+ </html>

@@ -26,9 +26,11 @@ p{margin:0 0 16px;font-size:.95rem;line-height:1.55;color:rgba(255,255,255,.82)}
 ul{list-style:none;margin:0 0 20px;padding:0;text-align:left;display:grid;gap:8px}
 li{display:flex;gap:10px;align-items:center;font-size:.88rem;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1)}
 li b{flex:0 0 24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;background:#FFD23F;color:#1a1000}
-#go{position:relative;overflow:hidden;width:100%;padding:17px 16px;border:0;border-radius:18px;font:inherit;font-weight:800;font-size:1.15rem;letter-spacing:.02em;cursor:pointer;color:#1a1000;background:linear-gradient(180deg,#FFD23F,#FF8A00);box-shadow:0 6px 0 #a85a00,0 16px 34px #FFD23F66;touch-action:manipulation;transition:transform .08s}
+#go,#linkButton{position:relative;overflow:hidden;width:100%;padding:17px 16px;border:0;border-radius:18px;font:inherit;font-weight:800;font-size:1.15rem;letter-spacing:.02em;cursor:pointer;color:#1a1000;background:linear-gradient(180deg,#FFD23F,#FF8A00);box-shadow:0 6px 0 #a85a00,0 16px 34px #FFD23F66;touch-action:manipulation;transition:transform .08s}
 #go:active{transform:translateY(4px);box-shadow:0 2px 0 #a85a00,0 8px 20px #FFD23F55}
-#go[disabled]{filter:grayscale(.2);opacity:.85}
+#go[disabled],#linkButton[disabled]{filter:grayscale(.2);opacity:.85}
+#linkButton{margin-top:16px;background:linear-gradient(180deg,#8ce4cb,#39b491);box-shadow:0 5px 0 #217562,0 12px 24px #39b49133}
+#linkButton[disabled]{background:#ffffff15;color:#ffffff80;box-shadow:none;border:1px solid #ffffff25;cursor:not-allowed}
 .note{margin-top:12px;font-size:.74rem;color:rgba(255,255,255,.55);word-break:break-all}
 .ring{display:none;position:relative;width:132px;height:132px;margin:0 auto 14px}
 .ring svg{width:132px;height:132px;transform:rotate(-90deg)}
@@ -47,7 +49,7 @@ li b{flex:0 0 24px;height:24px;border-radius:50%;display:flex;align-items:center
 .retry{display:none;margin-top:12px;font-size:.82rem;color:rgba(255,255,255,.8)}
 .retry a{color:#FFD23F;font-weight:700}
 .err{color:#ff9b9b}
-@media(max-width:480px){body{padding:12px}.card{padding:30px 16px 18px}h1{font-size:1.5rem}}
+@media(max-width:480px){body{padding:46px 12px 18px}.card{padding:24px 16px 18px}.icon{width:64px;height:64px;margin:-60px auto 12px}.ring,.ring svg{width:96px;height:96px}.ring .n{font-size:2.2rem}h1{font-size:1.5rem}}
 @media(pointer:coarse) and (min-width:700px){.card{zoom:1.7}}
 </style>
 </head>
@@ -67,6 +69,7 @@ li b{flex:0 0 24px;height:24px;border-radius:50%;display:flex;align-items:center
   <div class="ring" id="ring"><svg viewBox="0 0 120 120"><circle class="tr" cx="60" cy="60" r="52"/><circle class="pg" cx="60" cy="60" r="52"/></svg><div class="n" id="num"></div></div>
   <div class="wait" id="wait">Checking...</div>
   <button type="button" id="go">Download to unlock</button>
+  <button type="button" id="linkButton" disabled>🔒 Link</button>
   <div class="retry" id="retry">Link didn't open? <a id="rl" href="#" target="_blank" rel="noopener">Tap here</a></div>
   <div class="retry" id="downloadRetry">Pack download did not start? <a id="downloadLink" href="#" target="_blank" rel="noopener">Open download</a></div>
   <div class="note" id="note">by Tamilcrafters Studio</div>
@@ -109,12 +112,16 @@ li b{flex:0 0 24px;height:24px;border-radius:50%;display:flex;align-items:center
       document.getElementById("tag").textContent = "Already unlocked";
       document.getElementById("lead").textContent = "You have already unlocked this link on this browser.";
       document.getElementById("s2").textContent = "No download or wait needed this time";
-      document.getElementById("s1").textContent = "Tap Continue to website below";
+      document.getElementById("s1").textContent = "Tap the Link button below";
       go.textContent = "Continue to website";
     }
+    var linkButton = document.getElementById("linkButton");
+    linkButton.disabled = !unlocked;
+    if(unlocked){ linkButton.textContent = "Link"; go.textContent = "Download again"; }
+    linkButton.addEventListener("click", function(){ if(unlocked){ location.href = t.href; } });
     go.disabled = false;
     go.addEventListener("click", function(){
-      if(unlocked){ location.href = t.href; return; }
+      if(unlocked){ window.open(d.href, "_blank", "noopener"); return; }
       go.disabled = true;
       var ring = document.getElementById("ring"), num = document.getElementById("num"), wait = document.getElementById("wait");
       ring.style.display = "block"; wait.style.display = "block"; wait.textContent = "Checking...";
@@ -133,9 +140,9 @@ li b{flex:0 0 24px;height:24px;border-radius:50%;display:flex;align-items:center
         try{ localStorage.setItem(storageKey, "1"); }catch(e){}
         num.textContent = "\u2713"; ring.className = "ring done";
         wait.textContent = "Unlocked!";
-        go.textContent = "\u2705 Unlocked! Opening\u2026";
-        document.getElementById("retry").style.display = "block";
-        setTimeout(function(){ location.href = t.href; }, 800);
+        go.textContent = "Download opened";
+        linkButton.disabled = false; linkButton.textContent = "Link";
+        document.getElementById("lead").textContent = "Your link is unlocked. Tap Link below to continue.";
       }, 200);
     });
   }

@@ -63,10 +63,10 @@ details ol{margin:8px 0 0;padding-left:18px;line-height:1.5}
 <body>
 <main class="card">
   <h1>🔐 Pack Link Lock</h1>
-  <p class="sub">Make a lock link: viewers tap unlock, a CurseForge pack comes in the background, and they are sent to your site.</p>
+  <p class="sub">Make a lock link: viewers tap unlock, the CurseForge download page opens in a new tab, and your site unlocks after 10 seconds.</p>
   <label for="dl">1. CurseForge direct file link</label>
   <input id="dl" type="url" inputmode="url" placeholder="https://www.curseforge.com/api/v1/mods/.../files/.../download" autocomplete="off">
-  <div class="hint">Must be a curseforge.com or forgecdn.net link.</div>
+  <div class="hint">Use the CurseForge Download button link, not the project overview or file details page.</div>
   <label for="to">2. Website link to lock</label>
   <input id="to" type="url" inputmode="url" placeholder="https://your-site.example/page" autocomplete="off">
   <label for="nm">3. Site name shown to viewers (optional)</label>
@@ -108,6 +108,13 @@ details ol{margin:8px 0 0;padding-left:18px;line-height:1.5}
   var links = [], editing = null, deleting = null;
   function parse(u){ try{ var x = new URL(u.trim()); return (x.protocol==="https:"||x.protocol==="http:") ? x : null; }catch(e){ return null; } }
   function ok(x){ return HOSTS.some(function(h){ return x.hostname===h || x.hostname.slice(-(h.length+1))==="."+h; }); }
+  function isDownload(x){
+    if(!x || x.protocol!=="https:"){ return false; }
+    if(x.hostname==="curseforge.com" || x.hostname.endsWith(".curseforge.com")){
+      return /^\/[^/]+\/[^/]+\/[^/]+\/download(?:\/\d+)?\/?$/.test(x.pathname) || /^\/api\/v1\/mods\/\d+\/files\/\d+\/download\/?$/.test(x.pathname);
+    }
+    return (x.hostname==="forgecdn.net" || x.hostname.endsWith(".forgecdn.net")) && /\.(mcaddon|mcpack|zip|jar)$/i.test(x.pathname);
+  }
   function err(m){ var e=$("err"); e.textContent=m; e.style.display=m?"block":"none"; }
   function tok(){ try{ return localStorage.getItem(KEY) || ""; }catch(e){ return ""; } }
   function base(){ return location.href.replace(/[?#].*$/,"").replace(/[^\/]*$/,"") + "lock.html"; }
@@ -192,7 +199,7 @@ details ol{margin:8px 0 0;padding-left:18px;line-height:1.5}
     } else if(a==="save"){
       var v = {}; item.querySelectorAll("input").forEach(function(i){ v[i.getAttribute("data-f")] = i.value.trim(); });
       var d = parse(v.pack||""), t = parse(v.site||"");
-      if(!d || !ok(d)){ return say("File link must be a valid curseforge.com / forgecdn.net link.", true); }
+      if(!isDownload(d)){ return say("Use the CurseForge Download button link. Project overview and file details links cannot start a download.", true); }
       if(!t){ return say("Website link must start with http:// or https://", true); }
       b.disabled=true; b.textContent="Saving...";
       mutate(function(x){ x.links.forEach(function(e){ if(e.id===id){ e.label=v.label.slice(0,40)||t.hostname.replace(/^www\./,""); e.site=t.href; e.pack=d.href; } }); return x; }, "Edit link "+id)
@@ -202,14 +209,15 @@ details ol{margin:8px 0 0;padding-left:18px;line-height:1.5}
   });
   $("gen").addEventListener("click", function(){
     err(""); say(""); $("out").style.display="none";
+    var d = parse($("dl").value), t = parse($("to").value), n = $("nm").value.trim().slice(0,40);
+    if(!isDownload(d)){ return err("Use the CurseForge Download button link. Project overview and file details links cannot start a download."); }
+    if(!t){ return err("Website link must start with http:// or https://"); }
     if(!tok()){
       err("Paste your GitHub token first. Every link is saved to My Links so you can edit or delete it later.");
       var tb=$("tokcard"); tb.classList.add("need"); tb.scrollIntoView({behavior:"smooth",block:"center"}); setTimeout(function(){ $("tok").focus(); },350);
       return;
     }
-    var d = parse($("dl").value), t = parse($("to").value), n = $("nm").value.trim().slice(0,40);
-    if(!d || !ok(d)){ return err("File link must be a valid curseforge.com / forgecdn.net link."); }
-    if(!t){ return err("Website link must start with http:// or https://"); }
+
     var id = newId(), btn=$("gen"); btn.disabled=true; btn.textContent="Saving...";
     var entry = {id:id, created:new Date().toISOString().slice(0,10), label:n||t.hostname.replace(/^www\./,""), site:t.href, pack:d.href};
     mutate(function(x){ x.links.push(entry); return x; }, "Add link "+id).then(function(){

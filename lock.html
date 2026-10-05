@@ -36,8 +36,9 @@ li b{flex:0 0 24px;height:24px;border-radius:50%;display:flex;align-items:center
 .ring .tr{stroke:rgba(255,255,255,.14)}
 .ring .pg{stroke:#FFD23F;stroke-linecap:round;stroke-dasharray:326.73;stroke-dashoffset:0;filter:drop-shadow(0 0 6px #FFD23FAA)}
 .ring .n{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2.8rem;font-weight:800;color:#FFD23F}
-.ring.run .pg{animation:fill 10s linear forwards}
-.ring.run .n{animation:pulse 1s ease-in-out infinite}
+.ring.run .pg{stroke-dasharray:80 247;animation:spin 1s linear infinite;transform-origin:60px 60px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ring.run .n{display:none}
 .ring.done .n{animation:pop .5s ease}
 @keyframes fill{to{stroke-dashoffset:326.73}}
 @keyframes pulse{50%{transform:scale(1.12)}}
@@ -59,14 +60,15 @@ li b{flex:0 0 24px;height:24px;border-radius:50%;display:flex;align-items:center
   <h1 id="title">Continue to your link</h1>
   <p id="lead">Your link is ready. Unlock it with one quick tap.</p>
   <ul>
-    <li><b>1</b><span>Tap the unlock button below</span></li>
-    <li><b>2</b><span id="s2">Support the creator with one free tap</span></li>
+    <li><b>1</b><span id="s1">Tap Download to unlock below</span></li>
+    <li><b>2</b><span id="s2">Download opens in a new tab</span></li>
     <li><b>3</b><span id="s3">You are taken to your link</span></li>
   </ul>
-  <div class="ring" id="ring"><svg viewBox="0 0 120 120"><circle class="tr" cx="60" cy="60" r="52"/><circle class="pg" cx="60" cy="60" r="52"/></svg><div class="n" id="num">10</div></div>
-  <div class="wait" id="wait">Unlocking your link, please wait\u2026</div>
-  <button type="button" id="go">🔓 Unlock Website Link</button>
+  <div class="ring" id="ring"><svg viewBox="0 0 120 120"><circle class="tr" cx="60" cy="60" r="52"/><circle class="pg" cx="60" cy="60" r="52"/></svg><div class="n" id="num"></div></div>
+  <div class="wait" id="wait">Checking...</div>
+  <button type="button" id="go">Download to unlock</button>
   <div class="retry" id="retry">Link didn't open? <a id="rl" href="#" target="_blank" rel="noopener">Tap here</a></div>
+  <div class="retry" id="downloadRetry">Pack download did not start? <a id="downloadLink" href="#" target="_blank" rel="noopener">Open download</a></div>
   <div class="note" id="note">by Tamilcrafters Studio</div>
 </main>
 <script>
@@ -76,6 +78,13 @@ li b{flex:0 0 24px;height:24px;border-radius:50%;display:flex;align-items:center
   var go = document.getElementById("go"), note = document.getElementById("note");
   function parse(u){ try{ var x = new URL(u); return (x.protocol==="https:"||x.protocol==="http:") ? x : null; }catch(e){ return null; } }
   function hostOk(x, list){ return list.some(function(h){ return x.hostname===h || x.hostname.slice(-(h.length+1))==="."+h; }); }
+  function isDownload(x){
+    if(!x || x.protocol!=="https:"){ return false; }
+    if(x.hostname==="curseforge.com" || x.hostname.endsWith(".curseforge.com")){
+      return /^\/[^/]+\/[^/]+\/[^/]+\/download(?:\/\d+)?\/?$/.test(x.pathname) || /^\/api\/v1\/mods\/\d+\/files\/\d+\/download\/?$/.test(x.pathname);
+    }
+    return (x.hostname==="forgecdn.net" || x.hostname.endsWith(".forgecdn.net")) && /\.(mcaddon|mcpack|zip|jar)$/i.test(x.pathname);
+  }
   function broken(title, lead, msg){
     go.disabled = true;
     document.getElementById("tag").textContent = "Unavailable";
@@ -85,27 +94,43 @@ li b{flex:0 0 24px;height:24px;border-radius:50%;display:flex;align-items:center
   }
   function ready(dl, to, name){
     var d = parse(dl), t = parse(to);
-    if(!d || !hostOk(d, DL_HOSTS) || !t){ return broken("Link is broken", "This lock link is missing or invalid. Ask the creator for a new one.", "Invalid or missing link."); }
+    if(!isDownload(d) || !t){ return broken("Link is broken", "This lock link is missing or invalid. Ask the creator for a new one.", "Invalid or missing link."); }
     var label = (name || "").trim().slice(0,40) || t.hostname.replace(/^www\./,"");
     document.getElementById("title").textContent = "Continue to " + label;
     document.getElementById("lead").textContent = "Your link to " + label + " is ready. Unlock it with one quick tap.";
     document.getElementById("s3").textContent = "You are taken to " + label;
     note.textContent = "Opens: " + t.hostname + " \u2022 by Tamilcrafters Studio";
     document.getElementById("rl").href = t.href;
+    document.getElementById("downloadLink").href = d.href;
+    var storageKey = "pack-lock:unlocked:" + (id || encodeURIComponent(d.href + "|" + t.href));
+    var unlocked = false;
+    try{ unlocked = localStorage.getItem(storageKey) === "1"; }catch(e){}
+    if(unlocked){
+      document.getElementById("tag").textContent = "Already unlocked";
+      document.getElementById("lead").textContent = "You have already unlocked this link on this browser.";
+      document.getElementById("s2").textContent = "No download or wait needed this time";
+      document.getElementById("s1").textContent = "Tap Continue to website below";
+      go.textContent = "Continue to website";
+    }
     go.disabled = false;
     go.addEventListener("click", function(){
+      if(unlocked){ location.href = t.href; return; }
       go.disabled = true;
       var ring = document.getElementById("ring"), num = document.getElementById("num"), wait = document.getElementById("wait");
-      ring.style.display = "block"; wait.style.display = "block"; wait.textContent = "Unlocking your link, please wait\u2026";
-      go.textContent = "\u23F3 Unlocking\u2026";
-      var f = document.createElement("iframe");
-      f.style.display = "none"; f.src = d.href; document.body.appendChild(f);
+      ring.style.display = "block"; wait.style.display = "block"; wait.textContent = "Checking...";
+      go.textContent = "Checking...";
+      // Open directly in the tap handler to keep the browser user gesture.
+      var downloadTab = window.open(d.href, "_blank");
+      if(downloadTab){ try{ downloadTab.opener = null; }catch(e){} }
+      document.getElementById("downloadRetry").style.display = "block";
       void ring.getBoundingClientRect(); ring.className = "ring run";
       var end = Date.now() + 10000;
       var iv = setInterval(function(){
         var left = Math.ceil((end - Date.now())/1000);
-        if(left > 0){ num.textContent = left; return; }
+        if(left > 0){ return; }
         clearInterval(iv);
+        unlocked = true;
+        try{ localStorage.setItem(storageKey, "1"); }catch(e){}
         num.textContent = "\u2713"; ring.className = "ring done";
         wait.textContent = "Unlocked!";
         go.textContent = "\u2705 Unlocked! Opening\u2026";
